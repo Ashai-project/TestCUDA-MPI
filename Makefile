@@ -1,2 +1,2 @@
-DeviceName: DeviceName.cu
-	nvcc DeviceName.cu
+LoopSend: LoopSend.cu
+	nvcc LoopSend.cu
