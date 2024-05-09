@@ -36,8 +36,10 @@ int main(int argc, char **argv)
             cudaDeviceSynchronize();
             int recv_from = (mpirank + 1) % mpisize;
             int send_to = (mpirank - 1 + mpisize) % mpisize;
-            MPI_Send(send_b, 10, MPI_INT, send_to, 0, MPI_COMM_WORLD);
-            MPI_Recv(recieve_b, 10, MPI_INT, recv_from, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Request request[2];
+            MPI_ISend(send_b, 10, MPI_INT, send_to, 0, MPI_COMM_WORLD, &request[0]);
+            MPI_IRecv(recieve_b, 10, MPI_INT, recv_from, 0, MPI_COMM_WORLD, &request[1]);
+            MPI_Waitall(2, request, MPI_STATUS_IGNORE);
             int *recieve_b_h;
             cudaMallocHost((void **)&recieve_b_h, sizeof(int) * 10);
             cudaMemcpy((void *)recieve_b_h, (void *)recieve_b, sizeof(int) * 10, cudaMemcpyDeviceToHost);
