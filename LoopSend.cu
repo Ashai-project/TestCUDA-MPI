@@ -32,11 +32,11 @@ int main(int argc, char **argv)
             int *send_b, *recieve_b;
             cudaMalloc((void **)&send_b, sizeof(int) * 10);
             cudaMalloc((void **)&recieve_b, sizeof(int) * 10);
-            cudaMemset(send_b, 0, sizeof(int) * 10);
+            // cudaMemset(send_b, 0, sizeof(int) * 10);
             printf("GPU device : %d / %d SValue : %d\n", gpurank, gpusize, send_b[0]);
             cudaDeviceSynchronize();
-            int recv_from = (mpirank + 1) % mpisize;
-            int send_to = (mpirank - 1 + mpisize) % mpisize;
+            // int recv_from = (mpirank + 1) % mpisize;
+            // int send_to = (mpirank - 1 + mpisize) % mpisize;
             // MPI_Send(send_b, 10, MPI_INT, send_to, 0, MPI_COMM_WORLD);
             // MPI_Recv(recieve_b, 10, MPI_INT, recv_from, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             // printf("GPU device : %d / %d RValue : %d\n", gpurank, gpusize, recieve_b[0]);
