@@ -36,6 +36,7 @@ int main(int argc, char **argv)
             cudaDeviceSynchronize();
             int recv_from = (mpirank + 1) % mpisize;
             int send_to = (mpirank - 1 + mpisize) % mpisize;
+            printf("MPI rank : %d send: %d recieve: %d\n", mpirank, send_to, recv_from);
             MPI_Request request[2];
             MPI_Isend(send_b, 10, MPI_INT, send_to, 0, MPI_COMM_WORLD, &request[0]);
             MPI_Irecv(recieve_b, 10, MPI_INT, recv_from, 0, MPI_COMM_WORLD, &request[1]);
