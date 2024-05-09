@@ -1,6 +1,5 @@
 #include <mpi.h>
 #include <cstdio>
-#include <cuda_runtime.h>
 #include <iostream>
 
 __global__ void GPU_Kernel()
