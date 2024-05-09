@@ -29,7 +29,7 @@ int main(int argc, char **argv)
             printf("MPI rank    : %d / %d  GPU device : %d / %d\n",
                    mpirank, mpisize, gpurank, gpusize);
             // GPU_Kernel<<<2, 2>>>();
-            int *send_b, recieve_b;
+            int *send_b, *recieve_b;
             cudaMalloc((void **)&send_b, sizeof(int) * 10);
             cudaMalloc((void **)&recieve_b, sizeof(int) * 10);
             cudaMemset(send_b, gpurank, sizeof(int) * 10);
