@@ -37,9 +37,9 @@ int main(int argc, char **argv)
             cudaDeviceSynchronize();
             int recv_from = (mpirank + 1) % mpisize;
             int send_to = (mpirank - 1 + mpisize) % mpisize;
-            MPI_Send(send_b, 10, MPI_INT, send_to, 0, MPI_COMM_WORLD);
-            MPI_Recv(recieve_b, 10, MPI_INT, recv_from, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            printf("GPU device : %d / %d RValue : %d\n", gpurank, gpusize, recieve_b[0]);
+            // MPI_Send(send_b, 10, MPI_INT, send_to, 0, MPI_COMM_WORLD);
+            // MPI_Recv(recieve_b, 10, MPI_INT, recv_from, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            // printf("GPU device : %d / %d RValue : %d\n", gpurank, gpusize, recieve_b[0]);
         }
     }
     MPI_Finalize();
