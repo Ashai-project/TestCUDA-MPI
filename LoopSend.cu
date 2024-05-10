@@ -50,6 +50,8 @@ int main(int argc, char **argv)
     cudaGetDeviceCount(&gpusize);
     cudaSetDevice(mpirank % gpusize);
     cudaGetDevice(&gpurank);
+    int *send_b_d, *recieve_b_d, *send_b_h, *recieve_b_h;
+
     for (int irank = 0; irank < mpisize; irank++)
     {
         MPI_Barrier(MPI_COMM_WORLD);
@@ -59,7 +61,6 @@ int main(int argc, char **argv)
             printf("MPI rank    : %d / %d  GPU device : %d / %d\n",
                    mpirank, mpisize, gpurank, gpusize);
             // GPU_Kernel<<<2, 2>>>();
-            int *send_b_d, *recieve_b_d, *send_b_h, *recieve_b_h;
             cudaMalloc((void **)&send_b_d, sizeof(int) * 10);
             cudaMalloc((void **)&recieve_b_d, sizeof(int) * 10);
             cudaMallocHost((void **)&send_b_h, sizeof(int) * 10);
