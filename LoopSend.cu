@@ -63,7 +63,7 @@ int main(int argc, char **argv)
             cudaMallocHost((void **)&recieve_b_h, sizeof(int) * 10);
             cudaMemset(send_b_d, mpirank, sizeof(int) * 10);
             printf("success memset!\n");
-            cudaMemcpy(send_b_h,send_b_d,sizeof(int)*10,cudaMemcpyDeviceToHost);
+            // cudaMemcpy(send_b_h,send_b_d,sizeof(int)*10,cudaMemcpyDeviceToHost);
             cudaDeviceSynchronize();
             int recv_from = (mpirank + 1) % mpisize;
             int send_to = (mpirank - 1 + mpisize) % mpisize;
