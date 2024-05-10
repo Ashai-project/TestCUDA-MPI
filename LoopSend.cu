@@ -51,7 +51,7 @@ int main(int argc, char **argv)
     cudaSetDevice(mpirank % gpusize);
     cudaGetDevice(&gpurank);
     int *send_b_d, *recieve_b_d, *send_b_h, *recieve_b_h;
-
+    int recv_from, send_to;
     for (int irank = 0; irank < mpisize; irank++)
     {
         MPI_Barrier(MPI_COMM_WORLD);
@@ -69,8 +69,8 @@ int main(int argc, char **argv)
             printf("success memset!\n");
             cudaMemcpy(send_b_h, send_b_d, sizeof(int) * 10, cudaMemcpyDeviceToHost);
             cudaDeviceSynchronize();
-            int recv_from = (mpirank + 1) % mpisize;
-            int send_to = (mpirank - 1 + mpisize) % mpisize;
+            recv_from = (mpirank + 1) % mpisize;
+            send_to = (mpirank - 1 + mpisize) % mpisize;
             printf("MPI rank : %d send: %d recieve: %d Value: %d\n", mpirank, send_to, recv_from, send_b_h[0]);
         }
     }
