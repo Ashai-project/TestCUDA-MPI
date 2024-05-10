@@ -1,6 +1,12 @@
-#include <mpi.h>
 #include <cstdio>
 #include <iostream>
+#include <mpi.h>
+#if !defined(OPEN_MPI) || !OPEN_MPI
+#error This source code uses an Open MPI-specific extension
+#endif
+
+/* Needed for MPIX_Query_cuda_support(), below */
+#include <mpi-ext.h>
 
 __global__ void GPU_Kernel()
 {
@@ -13,6 +19,27 @@ int main(int argc, char **argv)
     char hostname[256];
     int mpisize, mpirank, gpusize, gpurank, len;
     MPI_Init(&argc, &argv);
+    //check cuda aware 
+    printf("Compile time check:\n");
+#if defined(MPIX_CUDA_AWARE_SUPPORT) && MPIX_CUDA_AWARE_SUPPORT
+    printf("This MPI library has CUDA-aware support.\n", MPIX_CUDA_AWARE_SUPPORT);
+#elif defined(MPIX_CUDA_AWARE_SUPPORT) && !MPIX_CUDA_AWARE_SUPPORT
+    printf("This MPI library does not have CUDA-aware support.\n");
+#else
+    printf("This MPI library cannot determine if there is CUDA-aware support.\n");
+#endif /* MPIX_CUDA_AWARE_SUPPORT */
+
+    printf("Run time check:\n");
+#if defined(MPIX_CUDA_AWARE_SUPPORT)
+    if (1 == MPIX_Query_cuda_support()) {
+        printf("This MPI library has CUDA-aware support.\n");
+    } else {
+        printf("This MPI library does not have CUDA-aware support.\n");
+    }
+#else /* !defined(MPIX_CUDA_AWARE_SUPPORT) */
+    printf("This MPI library cannot determine if there is CUDA-aware support.\n");
+#endif /* MPIX_CUDA_AWARE_SUPPORT */
+
     MPI_Comm_size(MPI_COMM_WORLD, &mpisize);
     MPI_Comm_rank(MPI_COMM_WORLD, &mpirank);
     MPI_Get_processor_name(hostname, &len);
