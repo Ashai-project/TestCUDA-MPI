@@ -20,7 +20,7 @@ int main(int argc, char **argv)
     char hostname[256];
     int mpisize, mpirank, gpusize, gpurank, len;
     MPI_Init(&argc, &argv);
-    //check cuda aware 
+    // check cuda aware
     printf("Compile time check:\n");
 #if defined(MPIX_CUDA_AWARE_SUPPORT) && MPIX_CUDA_AWARE_SUPPORT
     printf("This MPI library has CUDA-aware support.\n", MPIX_CUDA_AWARE_SUPPORT);
@@ -32,12 +32,15 @@ int main(int argc, char **argv)
 
     printf("Run time check:\n");
 #if defined(MPIX_CUDA_AWARE_SUPPORT)
-    if (1 == MPIX_Query_cuda_support()) {
+    if (1 == MPIX_Query_cuda_support())
+    {
         printf("This MPI library has CUDA-aware support.\n");
-    } else {
+    }
+    else
+    {
         printf("This MPI library does not have CUDA-aware support.\n");
     }
-#else /* !defined(MPIX_CUDA_AWARE_SUPPORT) */
+#else  /* !defined(MPIX_CUDA_AWARE_SUPPORT) */
     printf("This MPI library cannot determine if there is CUDA-aware support.\n");
 #endif /* MPIX_CUDA_AWARE_SUPPORT */
 
@@ -56,15 +59,15 @@ int main(int argc, char **argv)
             printf("MPI rank    : %d / %d  GPU device : %d / %d\n",
                    mpirank, mpisize, gpurank, gpusize);
             // GPU_Kernel<<<2, 2>>>();
-            int *send_b_d, *recieve_b_d,*send_b_h,*recieve_b_h;
+            int *send_b_d, *recieve_b_d, *send_b_h, *recieve_b_h;
             cudaMalloc((void **)&send_b_d, sizeof(int) * 10);
             cudaMalloc((void **)&recieve_b_d, sizeof(int) * 10);
             cudaMalloc((void **)&send_b_h, sizeof(int) * 10);
             cudaMallocHost((void **)&recieve_b_h, sizeof(int) * 10);
             cudaMemset(send_b_d, mpirank, sizeof(int) * 10);
             printf("success memset!\n");
-            cudaMemcpy(send_b_h,send_b_d,sizeof(int)*10,cudaMemcpyDeviceToHost);
-            cudaDeviceSynchronize();
+            cudaMemcpy(send_b_h, send_b_d, sizeof(int) * 10, cudaMemcpyDeviceToHost);
+            // cudaDeviceSynchronize();
             int recv_from = (mpirank + 1) % mpisize;
             int send_to = (mpirank - 1 + mpisize) % mpisize;
             printf("MPI rank : %d send: %d recieve: %d Value: %d\n", mpirank, send_to, recv_from, send_b_h[0]);
