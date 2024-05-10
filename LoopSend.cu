@@ -71,10 +71,10 @@ int main(int argc, char **argv)
             int recv_from = (mpirank + 1) % mpisize;
             int send_to = (mpirank - 1 + mpisize) % mpisize;
             printf("MPI rank : %d send: %d recieve: %d Value: %d\n", mpirank, send_to, recv_from, send_b_h[0]);
-            // MPI_Request request[2];
-            // MPI_Isend(send_b_h, 10, MPI_INT, send_to, 0, MPI_COMM_WORLD, &request[0]);
-            // MPI_Irecv(recieve_b_h, 10, MPI_INT, recv_from, 0, MPI_COMM_WORLD, &request[1]);
-            // MPI_Waitall(2, request, MPI_STATUS_IGNORE);
+            MPI_Request request[2];
+            MPI_Isend(send_b_h, 10, MPI_INT, send_to, 0, MPI_COMM_WORLD, &request[0]);
+            MPI_Irecv(recieve_b_h, 10, MPI_INT, recv_from, 0, MPI_COMM_WORLD, &request[1]);
+            MPI_Waitall(2, request, MPI_STATUS_IGNORE);
             // cudaMemcpy((void *)recieve_b_h, (void *)recieve_b_d, sizeof(int) * 10, cudaMemcpyDeviceToHost);
             // cudaDeviceSynchronize();
             printf("GPU device : %d / %d RValue : %d\n", gpurank, gpusize, recieve_b_h[0]);
