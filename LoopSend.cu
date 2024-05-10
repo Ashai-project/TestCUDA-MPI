@@ -62,12 +62,12 @@ int main(int argc, char **argv)
             int *send_b_d, *recieve_b_d, *send_b_h, *recieve_b_h;
             cudaMalloc((void **)&send_b_d, sizeof(int) * 10);
             cudaMalloc((void **)&recieve_b_d, sizeof(int) * 10);
-            cudaMalloc((void **)&send_b_h, sizeof(int) * 10);
+            cudaMallocHost((void **)&send_b_h, sizeof(int) * 10);
             cudaMallocHost((void **)&recieve_b_h, sizeof(int) * 10);
             cudaMemset(send_b_d, mpirank, sizeof(int) * 10);
             printf("success memset!\n");
             cudaMemcpy(send_b_h, send_b_d, sizeof(int) * 10, cudaMemcpyDeviceToHost);
-            // cudaDeviceSynchronize();
+            cudaDeviceSynchronize();
             int recv_from = (mpirank + 1) % mpisize;
             int send_to = (mpirank - 1 + mpisize) % mpisize;
             printf("MPI rank : %d send: %d recieve: %d Value: %d\n", mpirank, send_to, recv_from, send_b_h[0]);
