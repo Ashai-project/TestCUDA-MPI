@@ -1,3 +1,9 @@
+/**
+ * @file LoopSend.cu
+ * @brief cuda対応MPIであることを確認し、cudaのhostメモリをプロセス間で送受信
+ * @date 2024-05-10
+ *
+ */
 #include <cstdio>
 #include <iostream>
 #include <mpi.h>
