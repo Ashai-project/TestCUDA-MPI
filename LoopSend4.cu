@@ -1,7 +1,8 @@
 /**
- * @file LoopSend3.cu
+ * @file LoopSend4.cu
  * @author Ashai-project
- * @brief cudaデバイス上のメモリ領域からcudaホストのメモリ領域へRDMA
+ * @brief GPUDirect RDMA
+ * cudaデバイス上のメモリ領域からcudaデバイスのメモリ領域へRDMA
  * @date 2024-05-10
  *
  */
@@ -81,8 +82,10 @@ int main(int argc, char **argv)
             printf("MPI rank : %d send: %d recieve: %d Value: %d\n", mpirank, send_to, recv_from, send_b_h[0]);
             MPI_Request request[2];
             MPI_Isend(send_b_d, 10, MPI_INT, send_to, 0, MPI_COMM_WORLD, &request[0]);
-            MPI_Irecv(recieve_b_h, 10, MPI_INT, recv_from, 0, MPI_COMM_WORLD, &request[1]);
+            MPI_Irecv(recieve_b_d, 10, MPI_INT, recv_from, 0, MPI_COMM_WORLD, &request[1]);
             MPI_Waitall(2, request, MPI_STATUS_IGNORE);
+            cudaMemcpy(recieve_b_h, recieve_b_d, sizeof(int) * 10, cudaMemcpyDeviceToHost);
+            cudaDeviceSynchronize();
         }
     }
     MPI_Finalize();
