@@ -73,7 +73,7 @@ int main(int argc, char **argv)
             printf("MPI rank : %d send: %d Value: %d\n", mpirank, send_to, send_buff_h[0]);
             MPI_Request request[1];
             MPI_Isend(send_buff_d, 10, MPI_INT, send_to, 0, MPI_COMM_WORLD, &request[0]);
-            MPI_Waitall(2, request, MPI_STATUS_IGNORE);
+            MPI_Waitall(1, request, MPI_STATUS_IGNORE);
             cudaDeviceSynchronize();
         }
     }
