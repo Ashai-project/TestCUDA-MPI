@@ -52,7 +52,7 @@ int main(int argc, char **argv)
     cudaGetDeviceCount(&gpusize);
     cudaSetDevice(mpirank % gpusize);
     cudaGetDevice(&gpurank);
-    int *send_b_d, *send_b_h;
+    int *send_buff_d, *send_buff_h;
     int send_to;
     for (int irank = 0; irank < mpisize; irank++)
     {
@@ -63,16 +63,16 @@ int main(int argc, char **argv)
             printf("MPI rank    : %d / %d  GPU device : %d / %d\n",
                    mpirank, mpisize, gpurank, gpusize);
             // GPU_Kernel<<<2, 2>>>();
-            cudaMalloc((void **)&send_b_d, sizeof(int) * 10);
-            cudaMallocHost((void **)&send_b_h, sizeof(int) * 10);
-            cudaMemset(send_b_d, mpirank, sizeof(int) * 10);
+            cudaMalloc((void **)&send_buff_d, sizeof(int) * 10);
+            cudaMallocHost((void **)&send_buff_h, sizeof(int) * 10);
+            cudaMemset(send_buff_d, mpirank, sizeof(int) * 10);
             printf("success memset!\n");
-            cudaMemcpy(send_b_h, send_b_d, sizeof(int) * 10, cudaMemcpyDeviceToHost);
+            cudaMemcpy(send_buff_h, send_buff_d, sizeof(int) * 10, cudaMemcpyDeviceToHost);
             cudaDeviceSynchronize();
-            send_to = (mpirank - 1 + mpisize) % mpisize;
-            // MPI_Request request[2];
-            // MPI_Isend(send_b_d, 10, MPI_INT, send_to, 0, MPI_COMM_WORLD, &request[0]);
-            // MPI_Waitall(2, request, MPI_STATUS_IGNORE);
+            send_to = mpirank+4;
+            MPI_Request request[1];
+            MPI_Isend(send_buff_d, 10, MPI_INT, send_to, 0, MPI_COMM_WORLD, &request[0]);
+            MPI_Waitall(2, request, MPI_STATUS_IGNORE);
             cudaDeviceSynchronize();
         }
     }

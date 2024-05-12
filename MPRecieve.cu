@@ -52,7 +52,7 @@ int main(int argc, char **argv)
     cudaGetDeviceCount(&gpusize);
     cudaSetDevice(mpirank % gpusize);
     cudaGetDevice(&gpurank);
-    int *recieve_b_d,*recieve_b_h;
+    int *recieve_buff_d,*recieve_buff_h;
     int recv_from;
     for (int irank = 0; irank < mpisize; irank++)
     {
@@ -63,18 +63,18 @@ int main(int argc, char **argv)
             printf("MPI rank    : %d / %d  GPU device : %d / %d\n",
                    mpirank, mpisize, gpurank, gpusize);
             // GPU_Kernel<<<2, 2>>>();
-            cudaMalloc((void **)&recieve_b_d, sizeof(int) * 10);
-            cudaMallocHost((void **)&recieve_b_h, sizeof(int) * 10);
+            cudaMalloc((void **)&recieve_buff_d, sizeof(int) * 10);
+            cudaMallocHost((void **)&recieve_buff_h, sizeof(int) * 10);
             printf("success malloc!\n");
             cudaDeviceSynchronize();
-            recv_from = (mpirank + 1) % mpisize;
-            // MPI_Request request[2];
-            // MPI_Irecv(recieve_b_d, 10, MPI_INT, recv_from, 0, MPI_COMM_WORLD, &request[1]);
-            // MPI_Waitall(2, request, MPI_STATUS_IGNORE);
-            // cudaMemcpy(recieve_b_h, recieve_b_d, sizeof(int) * 10, cudaMemcpyDeviceToHost);
+            recv_from = mpirank - 4;
+            MPI_Request request[1];
+            MPI_Irecv(recieve_buff_d, 10, MPI_INT, recv_from, 0, MPI_COMM_WORLD, &request[0]);
+            MPI_Waitall(2, request, MPI_STATUS_IGNORE);
+            cudaMemcpy(recieve_buff_h, recieve_buff_d, sizeof(int) * 10, cudaMemcpyDeviceToHost);
             cudaDeviceSynchronize();
         }
     }
     MPI_Finalize();
-    printf("MPI rank    : %d / %d RValue : %d\n", mpirank, mpisize, recieve_b_h[0]);
+    printf("MPI rank    : %d / %d RValue : %d\n", mpirank, mpisize, recieve_buff_h[0]);
 }
