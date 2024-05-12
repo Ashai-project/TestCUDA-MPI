@@ -7,6 +7,6 @@ LoopSend3: LoopSend3.cu
 LoopSend4: LoopSend4.cu
 	nvcc LoopSend4.cu -lmpi
 MPSend: MPSend.cu
-	nvcc MPSend.cu -lmpi -o a
+	nvcc MPSend.cu -lmpi -o a.out
 MPRecieve: MPRecieve.cu
-	nvcc MPRecieve.cu -lmpi -o b
+	nvcc MPRecieve.cu -lmpi -o b.out
