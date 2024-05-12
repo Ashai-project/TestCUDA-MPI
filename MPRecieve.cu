@@ -68,7 +68,7 @@ int main(int argc, char **argv)
             printf("success malloc!\n");
             cudaDeviceSynchronize();
             recv_from = mpirank - 4;
-            printf("MPI rank : %d recieve: %d Value: %d\n", mpirank, recv_from, send_buff_h[0]);
+            printf("MPI rank : %d recieve: %d\n", mpirank, recv_from);
             MPI_Request request[1];
             MPI_Irecv(recieve_buff_d, 10, MPI_INT, recv_from, 0, MPI_COMM_WORLD, &request[0]);
             MPI_Waitall(2, request, MPI_STATUS_IGNORE);
