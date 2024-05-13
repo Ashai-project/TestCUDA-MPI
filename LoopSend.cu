@@ -14,12 +14,7 @@
 
 /* Needed for MPIX_Query_cuda_support(), below */
 #include <mpi-ext.h>
-
-__global__ void GPU_Kernel()
-{
-    printf(" GPU block  : %d / %d  GPU thread : %d / %d\n",
-           blockIdx.x, gridDim.x, threadIdx.x, blockDim.x);
-}
+#define N 1000
 
 int main(int argc, char **argv)
 {
@@ -58,32 +53,33 @@ int main(int argc, char **argv)
     cudaGetDevice(&gpurank);
     int *send_buff_d, *recieve_buff_d, *send_buff_h, *recieve_buff_h;
     int recv_from, send_to;
-    for (int irank = 0; irank < mpisize; irank++)
+    printf("Hostname    : %s\n", hostname);
+    printf("MPI rank    : %d / %d  GPU device : %d / %d\n",
+           mpirank, mpisize, gpurank, gpusize);
+    cudaMalloc((void **)&send_buff_d, sizeof(int) * N);
+    cudaMalloc((void **)&recieve_buff_d, sizeof(int) * N);
+    cudaMallocHost((void **)&send_buff_h, sizeof(int) * N);
+    cudaMallocHost((void **)&recieve_buff_h, sizeof(int) * N);
+    cudaMemset(send_buff_d, mpirank, sizeof(int) * N);
+    printf("success memset!\n");
+    cudaMemcpy(send_buff_h, send_buff_d, sizeof(int) * N, cudaMemcpyDeviceToHost);
+    cudaDeviceSynchronize();
+    recv_from = (mpirank + 1) % mpisize;
+    send_to = (mpirank - 1 + mpisize) % mpisize;
+    printf("MPI rank : %d send: %d recieve: %d Value: %d\n", mpirank, send_to, recv_from, send_buff_h[0]);
+    auto start = std::chrono::system_clock::now();
+    for (int iroop = 0; iroop < 10000; iroop++)
     {
-        MPI_Barrier(MPI_COMM_WORLD); // グループのプロセス間でここで同期を取る
-        if (mpirank == irank)
-        {
-            printf("Hostname    : %s\n", hostname);
-            printf("MPI rank    : %d / %d  GPU device : %d / %d\n",
-                   mpirank, mpisize, gpurank, gpusize);
-            // GPU_Kernel<<<2, 2>>>();
-            cudaMalloc((void **)&send_buff_d, sizeof(int) * 10);
-            cudaMalloc((void **)&recieve_buff_d, sizeof(int) * 10);
-            cudaMallocHost((void **)&send_buff_h, sizeof(int) * 10);
-            cudaMallocHost((void **)&recieve_buff_h, sizeof(int) * 10);
-            cudaMemset(send_buff_d, mpirank, sizeof(int) * 10);
-            printf("success memset!\n");
-            cudaMemcpy(send_buff_h, send_buff_d, sizeof(int) * 10, cudaMemcpyDeviceToHost);
-            cudaDeviceSynchronize();
-            recv_from = (mpirank + 1) % mpisize;
-            send_to = (mpirank - 1 + mpisize) % mpisize;
-            printf("MPI rank : %d send: %d recieve: %d Value: %d\n", mpirank, send_to, recv_from, send_buff_h[0]);
-        }
+        MPI_Request request[2];
+        cudaMemcpy(send_buff_h, send_buff_d, sizeof(int) * N, cudaMemcpyDeviceToHost);
+        MPI_Isend(send_buff_h, N, MPI_INT, send_to, 0, MPI_COMM_WORLD, &request[0]);
+        MPI_Irecv(recieve_buff_h, N, MPI_INT, recv_from, 0, MPI_COMM_WORLD, &request[1]);
+        MPI_Waitall(2, request, MPI_STATUS_IGNORE);
+        cudaMemcpy(recieve_buff_d, recieve_buff_h, sizeof(int) * N, cudaMemcpyHostToDevice);
     }
-    MPI_Request request[2];
-    MPI_Isend(send_buff_h, 10, MPI_INT, send_to, 0, MPI_COMM_WORLD, &request[0]);
-    MPI_Irecv(recieve_buff_h, 10, MPI_INT, recv_from, 0, MPI_COMM_WORLD, &request[1]);
-    MPI_Waitall(2, request, MPI_STATUS_IGNORE);
     MPI_Finalize();
+    auto end = std::chrono::system_clock::now();
+    double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
     printf("MPI rank    : %d / %d RValue : %d\n", mpirank, mpisize, recieve_buff_h[0]);
+    std::cout << "time:" << elapsed << std::endl;
 }
