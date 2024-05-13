@@ -16,6 +16,7 @@
 
 /* Needed for MPIX_Query_cuda_support(), below */
 #include <mpi-ext.h>
+#define N 10
 
 int main(int argc, char **argv)
 {
@@ -54,28 +55,21 @@ int main(int argc, char **argv)
     cudaGetDevice(&gpurank);
     int *recieve_buff_d,*recieve_buff_h;
     int recv_from;
-    for (int irank = 0; irank < mpisize; irank++)
-    {
-        // MPI_Barrier(MPI_COMM_WORLD); // グループのプロセス間でここで同期を取る
-        if (mpirank == irank)
-        {
-            printf("Hostname    : %s\n", hostname);
-            printf("MPI rank    : %d / %d  GPU device : %d / %d\n",
+    printf("Hostname    : %s\n", hostname);
+    printf("MPI rank    : %d / %d  GPU device : %d / %d\n",
                    mpirank, mpisize, gpurank, gpusize);
-            // GPU_Kernel<<<2, 2>>>();
-            cudaMalloc((void **)&recieve_buff_d, sizeof(int) * 10);
-            cudaMallocHost((void **)&recieve_buff_h, sizeof(int) * 10);
-            printf("success malloc!\n");
-            cudaDeviceSynchronize();
-            recv_from = mpirank - 4;
-            printf("MPI rank : %d recieve: %d\n", mpirank, recv_from);
+    cudaMalloc((void **)&recieve_buff_d, sizeof(int) * N);
+    cudaMallocHost((void **)&recieve_buff_h, sizeof(int) * N);
+    cudaDeviceSynchronize();
+    recv_from = mpirank - 4;
+    for (int iroop = 0; iroop < 1000; iroop++)
+    {
             MPI_Request request[1];
-            MPI_Irecv(recieve_buff_d, 10, MPI_INT, recv_from, 0, MPI_COMM_WORLD, &request[0]);
+            MPI_Irecv(recieve_buff_d, N, MPI_INT, recv_from, 0, MPI_COMM_WORLD, &request[0]);
             MPI_Waitall(1, request, MPI_STATUS_IGNORE);
-            cudaMemcpy(recieve_buff_h, recieve_buff_d, sizeof(int) * 10, cudaMemcpyDeviceToHost);
-            cudaDeviceSynchronize();
-        }
     }
     MPI_Finalize();
+    cudaMemcpy(recieve_buff_h, recieve_buff_d, sizeof(int) * N, cudaMemcpyDeviceToHost);
+    cudaDeviceSynchronize();
     printf("MPI rank    : %d / %d RValue : %d\n", mpirank, mpisize, recieve_buff_h[0]);
 }

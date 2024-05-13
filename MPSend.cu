@@ -16,6 +16,7 @@
 
 /* Needed for MPIX_Query_cuda_support(), below */
 #include <mpi-ext.h>
+#define N 10
 
 int main(int argc, char **argv)
 {
@@ -54,28 +55,22 @@ int main(int argc, char **argv)
     cudaGetDevice(&gpurank);
     int *send_buff_d, *send_buff_h;
     int send_to;
-    for (int irank = 0; irank < mpisize; irank++)
-    {
-        // MPI_Barrier(MPI_COMM_WORLD); // グループのプロセス間でここで同期を取る
-        if (mpirank == irank)
-        {
-            printf("Hostname    : %s\n", hostname);
-            printf("MPI rank    : %d / %d  GPU device : %d / %d\n",
+    printf("Hostname    : %s\n", hostname);
+    printf("MPI rank    : %d / %d  GPU device : %d / %d\n",
                    mpirank, mpisize, gpurank, gpusize);
-            // GPU_Kernel<<<2, 2>>>();
-            cudaMalloc((void **)&send_buff_d, sizeof(int) * 10);
-            cudaMallocHost((void **)&send_buff_h, sizeof(int) * 10);
-            cudaMemset(send_buff_d, mpirank, sizeof(int) * 10);
-            printf("success memset!\n");
-            cudaMemcpy(send_buff_h, send_buff_d, sizeof(int) * 10, cudaMemcpyDeviceToHost);
-            cudaDeviceSynchronize();
-            send_to = mpirank+4;
-            printf("MPI rank : %d send: %d Value: %d\n", mpirank, send_to, send_buff_h[0]);
+    cudaMalloc((void **)&send_buff_d, sizeof(int) * N);
+    cudaMallocHost((void **)&send_buff_h, sizeof(int) * N);
+    cudaMemset(send_buff_d, mpirank, sizeof(int) * N);
+    printf("success memset!\n");
+    cudaMemcpy(send_buff_h, send_buff_d, sizeof(int) * N, cudaMemcpyDeviceToHost);
+    cudaDeviceSynchronize();
+    send_to = mpirank+4;
+    printf("MPI rank : %d send: %d Value: %d\n", mpirank, send_to, send_buff_h[0]);
+    for (int iroop = 0; iroop < 1000; iroop++)
+    {
             MPI_Request request[1];
-            MPI_Isend(send_buff_d, 10, MPI_INT, send_to, 0, MPI_COMM_WORLD, &request[0]);
+            MPI_Isend(send_buff_d, N, MPI_INT, send_to, 0, MPI_COMM_WORLD, &request[0]);
             MPI_Waitall(1, request, MPI_STATUS_IGNORE);
-            cudaDeviceSynchronize();
-        }
     }
     MPI_Finalize();
 }
