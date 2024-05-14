@@ -16,7 +16,7 @@
 #include <mpi-ext.h>
 #include <chrono>
 
-#define N 1000
+#define N 100000
 
 int main(int argc, char **argv)
 {
