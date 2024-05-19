@@ -32,14 +32,14 @@ void Communication::roopsend(int send_size)
 {
     MPI_Test(&request, &task_finish_flag, &status);
     if (task_finish_flag)
-        MPI_Irecv(comm_buff, send_size, MPI_INT, to_rank, 0, MPI_COMM_WORLD, request);
+        MPI_Irecv(comm_buff, send_size, MPI_INT, to_rank, 0, MPI_COMM_WORLD, &request);
 }
 
 void Communication::rooprecv()
 {
     MPI_Test(&request, &task_finish_flag, &status);
     if (task_finish_flag)
-        MPI_Irecv(comm_buff, max_recv_size, MPI_INT, from_rank, 0, MPI_COMM_WORLD, request);
+        MPI_Irecv(comm_buff, max_recv_size, MPI_INT, from_rank, 0, MPI_COMM_WORLD, &request);
 }
 
 void Communication::waittask()
