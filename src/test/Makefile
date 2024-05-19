@@ -12,3 +12,5 @@ MPRecieve: MPRecieve.cu
 	nvcc MPRecieve.cu -lmpi -o b.out
 Communication: Communication.cu
 	nvcc Communication.cu -lmpi
+test01 : test01.cu
+	nvcc -I../cuda test01.cu -lmpi
