@@ -4,7 +4,6 @@
 #include <cstdio>
 #include <iostream>
 #include <mpi.h>
-#include <cuda.h>
 #if !defined(OPEN_MPI) || !OPEN_MPI
 #error This source code uses an Open MPI-specific extension
 #endif
