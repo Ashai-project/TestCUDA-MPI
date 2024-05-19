@@ -4,6 +4,7 @@
 #define N 10
 int main(int argc, char **argv)
 {
+    MPI_Init(NULL, NULL);
     Communication c_send;
     Communication c_recv;
     c_send.init();
