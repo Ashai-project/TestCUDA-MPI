@@ -39,5 +39,5 @@ private:
     MPI_Request request;
     MPI_Status status;
     void *comm_buff;
-}
-#endif // COMPRESSOR_H
+};
+#endif // COMMUNICATION_H
