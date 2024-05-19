@@ -19,19 +19,21 @@ void Communication::initsend(int to, void *send_buff)
 {
     to_rank = to;
     comm_buff = send_buff;
+    MPI_Isend(comm_buff, 1, MPI_INT, to_rank, 0, MPI_COMM_WORLD, &request);
 }
 void Communication::initrecv(int max_size, int from)
 {
     max_recv_size = max_size;
     from_rank = from;
     cudaMalloc(&comm_buff, sizeof(int) * max_recv_size);
+    MPI_Irecv(comm_buff, max_recv_size, MPI_INT, from_rank, 0, MPI_COMM_WORLD, &request);
 }
 
 void Communication::roopsend(int send_size)
 {
     MPI_Test(&request, &task_finish_flag, &status);
     if (task_finish_flag)
-        MPI_Irecv(comm_buff, send_size, MPI_INT, to_rank, 0, MPI_COMM_WORLD, &request);
+        MPI_Isend(comm_buff, send_size, MPI_INT, to_rank, 0, MPI_COMM_WORLD, &request);
 }
 
 void Communication::rooprecv()
