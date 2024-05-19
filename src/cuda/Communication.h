@@ -27,6 +27,7 @@ public:
     void rooprecv();
     void waittask();
     int getrank();
+    void printbuff();
 
 private:
     int rank;

@@ -1,5 +1,6 @@
 #include "../cuda/Communication.h"
 #include <cuda_runtime.h>
+#include <chrono>
 #define N 10
 int main(int argc, char **argv)
 {
@@ -16,11 +17,28 @@ int main(int argc, char **argv)
             send_buff[i] = i;
         }
         c_send.initsend(1, send_buff);
-        c_send.roopsend(N);
+        auto start = std::chrono::system_clock::now();
+        auto end = std::chrono::system_clock::now();
+        double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+        while(elapsed<15*1000){
+            c_send.roopsend(N);
+            end = std::chrono::system_clock::now();
+            elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+        }
+        c_send.waittask();
     }
     else
     {
         c_recv.initrecv(N, 0);
-        c_recv.rooprecv();
+        auto start = std::chrono::system_clock::now();
+        auto end = std::chrono::system_clock::now();
+        double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+        while(elapsed<15*1000){
+            c_recv.rooprecv();
+            end = std::chrono::system_clock::now();
+            elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+        }
+        c_recv.waittask();
+        c_recv.printbuff();
     }
 }

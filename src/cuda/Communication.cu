@@ -47,7 +47,15 @@ void Communication::waittask()
     MPI_Wait(&request, MPI_STATUS_IGNORE);
 }
 
-void Communication::getrank()
+int Communication::getrank()
 {
     return rank;
+}
+
+void Communication::printbuff()
+{
+    for(int i=0;i<max_recv_size;i++){
+        std::cout<<"recv_buff["<<i<<"]"<< ((int *)comm_buff)[i]<<std::endl;
+    }
+    
 }
