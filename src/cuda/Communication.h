@@ -15,9 +15,9 @@ class Communication
 {
 public:
     // コンストラクタ
-    Communication();
+    Communication()= default;
     // デストラクタ
-    ~Communication();
+    ~Communication()= default;
     // メソッド
     void init();
     void initsend(int to_rank, void *send_buff);
