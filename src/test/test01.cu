@@ -4,8 +4,8 @@
 #define N 10
 int main(int argc, char **argv)
 {
-    Communication c_send = new Communication();
-    Communication c_recv = new Communication();
+    Communication c_send;
+    Communication c_recv;
     c_send.init();
     c_recv.init();
     if (c_send.getrank() == 0)
