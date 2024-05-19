@@ -25,7 +25,7 @@ void Communication::initrecv(int max_size, int from)
 {
     max_recv_size = max_size;
     from_rank = from;
-    cudaMalloc(&comm_buff, sizeof(int) * max_recv_size);
+    cudaMallocHost(&comm_buff, sizeof(int) * max_recv_size);
     MPI_Irecv(comm_buff, max_recv_size, MPI_INT, from_rank, 0, MPI_COMM_WORLD, &request);
 }
 
