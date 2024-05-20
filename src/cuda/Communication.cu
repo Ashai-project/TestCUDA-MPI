@@ -20,6 +20,8 @@ void Communication::initsend(int to, void *send_buff)
     to_rank = to;
     comm_buff = send_buff;
     MPI_Isend(comm_buff, 1, MPI_INT, to_rank, 0, MPI_COMM_WORLD, &request);
+    std::cout << "rank: " << rank << " send to: " << to_rank << std::endl;
+    counter = 0;
 }
 void Communication::initrecv(int max_size, int from)
 {
@@ -27,20 +29,30 @@ void Communication::initrecv(int max_size, int from)
     from_rank = from;
     cudaMallocHost(&comm_buff, sizeof(int) * max_recv_size);
     MPI_Irecv(comm_buff, max_recv_size, MPI_INT, from_rank, 0, MPI_COMM_WORLD, &request);
+    std::cout << "rank: " << rank << " recv from: " << from_rank << std::endl;
+    counter = 0;
 }
 
 void Communication::roopsend(int send_size)
 {
     MPI_Test(&request, &task_finish_flag, &status);
     if (task_finish_flag)
+    {
         MPI_Isend(comm_buff, send_size, MPI_INT, to_rank, 0, MPI_COMM_WORLD, &request);
+        counter++;
+        // std::cout << "send " << std::endl;
+    }
 }
 
 void Communication::rooprecv()
 {
     MPI_Test(&request, &task_finish_flag, &status);
     if (task_finish_flag)
+    {
         MPI_Irecv(comm_buff, max_recv_size, MPI_INT, from_rank, 0, MPI_COMM_WORLD, &request);
+        counter++;
+        // std::cout << "recv " << std::endl;
+    }
 }
 
 void Communication::waittask()
@@ -55,8 +67,13 @@ int Communication::getrank()
 
 void Communication::printbuff()
 {
-    for(int i=0;i<max_recv_size;i++){
-        std::cout<<"recv_buff["<<i<<"]"<< ((int *)comm_buff)[i]<<std::endl;
+    for (int i = 0; i < max_recv_size; i++)
+    {
+        std::cout << "recv_buff[" << i << "]" << ((int *)comm_buff)[i] << std::endl;
     }
-    
+}
+
+void Communication::printcounter()
+{
+    std::cout << "roop counter:" << counter << std::endl;
 }

@@ -15,9 +15,9 @@ class Communication
 {
 public:
     // コンストラクタ
-    Communication()= default;
+    Communication() = default;
     // デストラクタ
-    ~Communication()= default;
+    ~Communication() = default;
     // メソッド
     void init();
     void initsend(int to_rank, void *send_buff);
@@ -27,6 +27,7 @@ public:
     void waittask();
     int getrank();
     void printbuff();
+    void printcounter();
 
 private:
     int rank;
@@ -35,6 +36,7 @@ private:
     int max_recv_size;
     int to_rank;   // 送信先
     int from_rank; // 受信先
+    int counter;
     MPI_Request request;
     MPI_Status status;
     void *comm_buff;
