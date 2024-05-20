@@ -18,17 +18,23 @@ void Communication::init()
 void Communication::initsend(int to, void *send_buff)
 {
     to_rank = to;
-    comm_buff = send_buff;
-    MPI_Isend(comm_buff, 1, MPI_INT, to_rank, 0, MPI_COMM_WORLD, &request);
+    send_buff = send_buff;
+    MPI_Isend(send_buff, 1, MPI_INT, to_rank, 0, MPI_COMM_WORLD, &request);
     std::cout << "rank: " << rank << " send to: " << to_rank << std::endl;
     counter = 0;
 }
-void Communication::initrecv(int max_size, int from)
+void Communication::initrecv(int max_size, int from, int num)
 {
     max_recv_size = max_size;
     from_rank = from;
-    cudaMallocHost(&comm_buff, sizeof(int) * max_recv_size);
-    MPI_Irecv(comm_buff, max_recv_size, MPI_INT, from_rank, 0, MPI_COMM_WORLD, &request);
+    buff_num = num;
+    use_buff = 0;
+    cudaHostAlloc(&recv_buff, sizeof(size_t) * num, cudaHostAllocDefault);
+    for (int i = 0; i < buff_num; i++)
+    {
+        cudaMalloc(&recv_buff[i], sizeof(int) * max_recv_size);
+    }
+    MPI_Irecv(recv_buff[use_buff], max_recv_size, MPI_INT, from_rank, 0, MPI_COMM_WORLD, &request);
     std::cout << "rank: " << rank << " recv from: " << from_rank << std::endl;
     counter = 0;
 }
@@ -38,7 +44,7 @@ void Communication::roopsend(int send_size)
     MPI_Test(&request, &task_finish_flag, &status);
     if (task_finish_flag)
     {
-        MPI_Isend(comm_buff, send_size, MPI_INT, to_rank, 0, MPI_COMM_WORLD, &request);
+        MPI_Isend(send_buff, send_size, MPI_INT, to_rank, 0, MPI_COMM_WORLD, &request);
         counter++;
         // std::cout << "send " << std::endl;
     }
@@ -49,8 +55,9 @@ void Communication::rooprecv()
     MPI_Test(&request, &task_finish_flag, &status);
     if (task_finish_flag)
     {
-        MPI_Irecv(comm_buff, max_recv_size, MPI_INT, from_rank, 0, MPI_COMM_WORLD, &request);
+        MPI_Irecv(send_buff, max_recv_size, MPI_INT, from_rank, 0, MPI_COMM_WORLD, &request);
         counter++;
+        use_buff = (use_buff + 1) % buff_num;
         // std::cout << "recv " << std::endl;
     }
 }
@@ -67,10 +74,14 @@ int Communication::getrank()
 
 void Communication::printbuff()
 {
+    int *recv_h;
+    cudaHostAlloc((void **)&recv_h, sizeof(int) * max_recv_size, cudaHostAllocDefault);
+    cudaMemcpy(recv_h, recv_buff[0], sizeof(int) * max_recv_size, cudaMemcpyDeviceToHost);
     for (int i = 0; i < max_recv_size; i++)
     {
-        std::cout << "recv_buff[" << i << "]" << ((int *)comm_buff)[i] << std::endl;
+        std::cout << "recv_buff[" << i << "]" << recv_h[i] << std::endl;
     }
+    cudaFreeHost(recv_h);
 }
 
 void Communication::printcounter()

@@ -21,7 +21,7 @@ public:
     // メソッド
     void init();
     void initsend(int to_rank, void *send_buff);
-    void initrecv(int max_recv_size, int form_rank);
+    void initrecv(int max_recv_size, int form_rank, int buff_num);
     void roopsend(int send_size);
     void rooprecv();
     void waittask();
@@ -36,9 +36,12 @@ private:
     int max_recv_size;
     int to_rank;   // 送信先
     int from_rank; // 受信先
+    int buff_num;
+    int use_buff;
     int counter;
     MPI_Request request;
     MPI_Status status;
-    void *comm_buff;
+    void *send_buff;
+    void **recv_buff;
 };
 #endif // COMMUNICATION_H
