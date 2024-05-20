@@ -36,10 +36,10 @@ void Communication::init()
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     task_finish_flag = 0;
 }
-void Communication::initsend(int to, void *send_buff)
+void Communication::initsend(int to, void *send_buffer)
 {
     to_rank = to;
-    send_buff = send_buff;
+    send_buff = send_buffer;
     MPI_Isend(send_buff, 1, MPI_INT, to_rank, 0, MPI_COMM_WORLD, &request);
     std::cout << "rank: " << rank << " send to: " << to_rank << std::endl;
     counter = 0;
