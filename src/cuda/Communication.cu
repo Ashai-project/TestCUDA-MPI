@@ -53,7 +53,7 @@ void Communication::initrecv(int max_size, int from, int num)
     cudaHostAlloc(&recv_buff, sizeof(size_t) * buff_num, cudaHostAllocDefault);
     for (int i = 0; i < buff_num; i++)
     {
-        cudaMalloc(&recv_buff[i], sizeof(int) * max_recv_size);
+        cudaMallocHost(&recv_buff[i], sizeof(int) * max_recv_size);
     }
     MPI_Irecv(recv_buff[use_buff], max_recv_size, MPI_INT, from_rank, 0, MPI_COMM_WORLD, &request);
     std::cout << "rank: " << rank << " recv from: " << from_rank << " buff num: " << buff_num << std::endl;
@@ -97,7 +97,7 @@ void Communication::printbuff()
 {
     int *recv_h;
     cudaHostAlloc((void **)&recv_h, sizeof(int) * max_recv_size, cudaHostAllocDefault);
-    cudaMemcpy(recv_h, recv_buff[0], sizeof(int) * max_recv_size, cudaMemcpyDeviceToHost);
+    cudaMemcpy(recv_h, recv_buff[0], sizeof(int) * max_recv_size, cudaMemcpyHostToHost);
     for (int i = 0; i < max_recv_size; i++)
     {
         std::cout << "recv_buff[" << i << "]" << recv_h[i] << std::endl;
