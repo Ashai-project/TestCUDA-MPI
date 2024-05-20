@@ -46,4 +46,5 @@ int main(int argc, char **argv)
         c_recv.waittask();
         c_recv.printbuff();
     }
+    MPI_Finalize();
 }
