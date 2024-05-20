@@ -18,7 +18,7 @@ int main(int argc, char **argv)
         cudaMalloc((void **)&send_buff_d[0], sizeof(int) * N);
         for (int i = 0; i < N; i++)
         {
-            send_buff[i] = i;
+            send_buff[0][i] = i;
         }
         cudaMemcpy(send_buff_d[0], send_buff[0], sizeof(int) * N, cudaMemcpyHostToDevice);
         c_send.initsend(1, 1, (void **)send_buff_d);
