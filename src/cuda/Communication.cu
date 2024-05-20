@@ -35,13 +35,15 @@ void Communication::init()
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     task_finish_flag = 0;
+    use_buff = 0;
 }
 
-void Communication::initsend(int to, void *send_buffer)
+void Communication::initsend(int to, int num, void **send_buffer)
 {
     to_rank = to;
     send_buff = send_buffer;
-    MPI_Isend(send_buff, 1, MPI_INT, to_rank, 0, MPI_COMM_WORLD, &request);
+    buff_num = num;
+    MPI_Isend(send_buff[0], 1, MPI_INT, to_rank, 0, MPI_COMM_WORLD, &request);
     std::cout << "rank: " << rank << " send to: " << to_rank << std::endl;
     counter = 0;
 }
@@ -51,7 +53,6 @@ void Communication::initrecv(int max_size, int from, int num, void **recv_buff_a
     max_recv_size = max_size;
     from_rank = from;
     buff_num = num;
-    use_buff = 0;
     recv_buff = recv_buff_array;
     // cudaHostAlloc(&recv_buff, sizeof(size_t) * buff_num, cudaHostAllocDefault);
     // for (int i = 0; i < buff_num; i++)
@@ -74,8 +75,9 @@ void Communication::roopsend(int send_size)
     MPI_Test(&request, &task_finish_flag, &status);
     if (task_finish_flag)
     {
-        MPI_Isend(send_buff, send_size, MPI_INT, to_rank, 0, MPI_COMM_WORLD, &request);
+        MPI_Isend(send_buff[use_buff], send_size, MPI_INT, to_rank, 0, MPI_COMM_WORLD, &request);
         counter++;
+        use_buff = (use_buff + 1) % buff_num;
     }
 }
 /**
@@ -88,8 +90,9 @@ void Communication::roopsend(int send_size)
 void Communication::roopsendsync(int send_size)
 {
 
-    MPI_Ssend(send_buff, send_size, MPI_INT, to_rank, 0, MPI_COMM_WORLD);
+    MPI_Ssend(send_buff[use_buff], send_size, MPI_INT, to_rank, 0, MPI_COMM_WORLD);
     counter++;
+    use_buff = (use_buff + 1) % buff_num;
 }
 
 /**

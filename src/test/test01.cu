@@ -11,13 +11,17 @@ int main(int argc, char **argv)
     c_recv.init();
     if (c_send.getrank() == 0)
     {
-        int *send_buff;
-        cudaMallocHost((void **)&send_buff, sizeof(int) * N);
+        int **send_buff, **send_buff_d;
+        cudaMallocHost((void **)&send_buff, sizeof(size_t) * 1);
+        cudaMallocHost((void **)&send_buff_d, sizeof(size_t) * 1);
+        cudaMallocHost((void **)&send_buff[0], sizeof(int) * N);
+        cudaMalloc((void **)&send_buff_d[0], sizeof(int) * N);
         for (int i = 0; i < N; i++)
         {
             send_buff[i] = i;
         }
-        c_send.initsend(1, send_buff);
+        cudaMemcpy(send_buff_d[0], send_buff[0], sizeof(int) * N, cudaMemcpyHostToDevice);
+        c_send.initsend(1, 1, (void **)send_buff_d);
         auto start = std::chrono::system_clock::now();
         auto end = std::chrono::system_clock::now();
         double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
