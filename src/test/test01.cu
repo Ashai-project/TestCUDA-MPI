@@ -21,11 +21,13 @@ int main(int argc, char **argv)
         auto start = std::chrono::system_clock::now();
         auto end = std::chrono::system_clock::now();
         double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-        while(elapsed<15*1000){
+        while (elapsed < 15 * 1000)
+        {
             c_send.roopsend(N);
             end = std::chrono::system_clock::now();
             elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
         }
+        c_send.printcounter();
         c_send.waittask();
     }
     else
@@ -34,11 +36,13 @@ int main(int argc, char **argv)
         auto start = std::chrono::system_clock::now();
         auto end = std::chrono::system_clock::now();
         double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-        while(elapsed<15*1000){
+        while (elapsed < 15 * 1000)
+        {
             c_recv.rooprecv();
             end = std::chrono::system_clock::now();
             elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
         }
+        c_recv.printcounter();
         c_recv.waittask();
         c_recv.printbuff();
     }
