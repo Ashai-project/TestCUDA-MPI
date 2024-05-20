@@ -50,13 +50,13 @@ void Communication::initrecv(int max_size, int from, int num)
     from_rank = from;
     buff_num = num;
     use_buff = 0;
-    cudaHostAlloc(&recv_buff, sizeof(size_t) * num, cudaHostAllocDefault);
+    cudaHostAlloc(&recv_buff, sizeof(size_t) * buff_num, cudaHostAllocDefault);
     for (int i = 0; i < buff_num; i++)
     {
         cudaMalloc(&recv_buff[i], sizeof(int) * max_recv_size);
     }
     MPI_Irecv(recv_buff[use_buff], max_recv_size, MPI_INT, from_rank, 0, MPI_COMM_WORLD, &request);
-    std::cout << "rank: " << rank << " recv from: " << from_rank << std::endl;
+    std::cout << "rank: " << rank << " recv from: " << from_rank << " buff num: " << buff_num << std::endl;
     counter = 0;
 }
 

@@ -32,7 +32,7 @@ int main(int argc, char **argv)
     }
     else
     {
-        c_recv.initrecv(N, 0, 2);
+        c_recv.initrecv(N, 0, 1);
         auto start = std::chrono::system_clock::now();
         auto end = std::chrono::system_clock::now();
         double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
