@@ -1,11 +1,12 @@
 /**
  * @file Communication.cu
  * @brief 通信の完了をフラグとして次の通信を開始する
+ * mainのはじめにMPI_Init(NULL, NULL);を呼び出すのを忘れないように
+ * 一つのインスタンスで送受信はしないこと,必ず送信か受信だけ
  * @version 0.1
  * @date 2024-05-18
  *
  * @copyright Copyright (c) 2024
- *
  */
 #include "Communication.h"
 
@@ -37,7 +38,16 @@ void Communication::init()
     task_finish_flag = 0;
     use_buff = 0;
 }
-
+/**
+ * @brief
+ *
+ * @param to
+ * 送信先
+ * @param num
+ * 送信用バッファの数、ダブルバッファなら2
+ * @param send_buffer
+ * 送信用バッファのポインタ
+ */
 void Communication::initsend(int to, int num, void **send_buffer)
 {
     to_rank = to;
@@ -47,7 +57,18 @@ void Communication::initsend(int to, int num, void **send_buffer)
     std::cout << "rank: " << rank << " send to: " << to_rank << std::endl;
     counter = 0;
 }
-
+/**
+ * @brief
+ *
+ * @param max_size
+ * 受信サイズ、int最大個数
+ * @param from
+ * 受信先
+ * @param num
+ * 受信用バッファの数
+ * @param recv_buff_array
+ * 受信用バッファのポインタ
+ */
 void Communication::initrecv(int max_size, int from, int num, void **recv_buff_array)
 {
     max_recv_size = max_size;
@@ -109,7 +130,10 @@ void Communication::rooprecv()
         use_buff = (use_buff + 1) % buff_num;
     }
 }
-
+/**
+ * @brief
+ * requestが完了するまでスレッド待機
+ */
 void Communication::waittask()
 {
     MPI_Wait(&request, MPI_STATUS_IGNORE);
