@@ -21,7 +21,7 @@ public:
     // メソッド
     void init();
     void initsend(int to_rank, void *send_buff);
-    void initrecv(int max_recv_size, int form_rank, int buff_num);
+    void initrecv(int max_recv_size, int form_rank, int buff_num,void **recv_buff_array);
     void roopsend(int send_size);
     void roopsendsync(int send_size);
     void rooprecv();

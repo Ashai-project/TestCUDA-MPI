@@ -46,22 +46,29 @@ void Communication::initsend(int to, void *send_buffer)
     counter = 0;
 }
 
-void Communication::initrecv(int max_size, int from, int num)
+void Communication::initrecv(int max_size, int from, int num, void **recv_buff_array)
 {
     max_recv_size = max_size;
     from_rank = from;
     buff_num = num;
     use_buff = 0;
-    cudaHostAlloc(&recv_buff, sizeof(size_t) * buff_num, cudaHostAllocDefault);
-    for (int i = 0; i < buff_num; i++)
-    {
-        cudaMalloc(&recv_buff[i], sizeof(int) * max_recv_size);
-    }
+    recv_buff = recv_buff_array;
+    // cudaHostAlloc(&recv_buff, sizeof(size_t) * buff_num, cudaHostAllocDefault);
+    // for (int i = 0; i < buff_num; i++)
+    // {
+    //     cudaMalloc(&recv_buff[i], sizeof(int) * max_recv_size);
+    // }
     MPI_Irecv(recv_buff[use_buff], max_recv_size, MPI_INT, from_rank, 0, MPI_COMM_WORLD, &request);
     std::cout << "rank: " << rank << " recv from: " << from_rank << " buff num: " << buff_num << std::endl;
     counter = 0;
 }
 
+/**
+ * @brief
+ * sendのバッファが再利用可能になるまで次のsendをブロックする
+ * @param send_size
+ * 送信サイズ intの個数分
+ */
 void Communication::roopsend(int send_size)
 {
     MPI_Test(&request, &task_finish_flag, &status);
@@ -71,7 +78,13 @@ void Communication::roopsend(int send_size)
         counter++;
     }
 }
-
+/**
+ * @brief
+ * Ssendは受信を確認するまで実行されたスレッドにwaitをかける
+ * よってこの関数は受信側と完全同期した送信が行われる
+ * @param send_size
+ * 送信サイズ intの個数分
+ */
 void Communication::roopsendsync(int send_size)
 {
 

@@ -33,7 +33,13 @@ int main(int argc, char **argv)
     }
     else
     {
-        c_recv.initrecv(N, 0, 2);
+        void **recv_buff;
+        cudaHostAlloc(&recv_buff, sizeof(size_t) * 2, cudaHostAllocDefault);
+        for (int i = 0; i < 2; i++)
+        {
+            cudaMalloc(&recv_buff[i], sizeof(int) * N);
+        }
+        c_recv.initrecv(N, 0, 2, recv_buff);
         auto start = std::chrono::system_clock::now();
         auto end = std::chrono::system_clock::now();
         double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
