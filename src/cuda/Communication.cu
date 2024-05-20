@@ -36,6 +36,7 @@ void Communication::init()
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     task_finish_flag = 0;
 }
+
 void Communication::initsend(int to, void *send_buffer)
 {
     to_rank = to;
@@ -44,6 +45,7 @@ void Communication::initsend(int to, void *send_buffer)
     std::cout << "rank: " << rank << " send to: " << to_rank << std::endl;
     counter = 0;
 }
+
 void Communication::initrecv(int max_size, int from, int num)
 {
     max_recv_size = max_size;
@@ -67,10 +69,20 @@ void Communication::roopsend(int send_size)
     {
         MPI_Isend(send_buff, send_size, MPI_INT, to_rank, 0, MPI_COMM_WORLD, &request);
         counter++;
-        // std::cout << "send " << std::endl;
     }
 }
 
+void Communication::roopsendsync(int send_size)
+{
+
+    MPI_Ssend(send_buff, send_size, MPI_INT, to_rank, 0, MPI_COMM_WORLD);
+    counter++;
+}
+
+/**
+ * @brief 前回の受信の終了を確認し新規の非同期受信を開始
+ *
+ */
 void Communication::rooprecv()
 {
     MPI_Test(&request, &task_finish_flag, &status);
@@ -79,7 +91,6 @@ void Communication::rooprecv()
         MPI_Irecv(recv_buff[use_buff], max_recv_size, MPI_INT, from_rank, 0, MPI_COMM_WORLD, &request);
         counter++;
         use_buff = (use_buff + 1) % buff_num;
-        // std::cout << "recv " << std::endl;
     }
 }
 

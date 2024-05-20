@@ -23,7 +23,8 @@ int main(int argc, char **argv)
         double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
         while (elapsed < 15 * 1000)
         {
-            c_send.roopsend(N);
+            // c_send.roopsend(N);
+            c_send.roopsendsync(N);
             end = std::chrono::system_clock::now();
             elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
         }
